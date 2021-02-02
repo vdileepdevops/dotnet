@@ -1,0 +1,4 @@
+C:\Users\Dileep\Desktop\RMS\RMS.Core\bin\Release\RMS.Core.dll
+C:\Users\Dileep\Desktop\RMS\RMS.Core\bin\Release\RMS.Core.pdb
+C:\Users\Dileep\Desktop\RMS\RMS.Core\obj\Release\RMS.Core.dll
+C:\Users\Dileep\Desktop\RMS\RMS.Core\obj\Release\RMS.Core.pdb

@@ -1,0 +1,5 @@
+C:\Users\Dileep\Desktop\RMS\RMS.Core\bin\Debug\RMS.Core.dll
+C:\Users\Dileep\Desktop\RMS\RMS.Core\bin\Debug\RMS.Core.pdb
+C:\Users\Dileep\Desktop\RMS\RMS.Core\obj\Debug\RMS.Core.csprojAssemblyReference.cache
+C:\Users\Dileep\Desktop\RMS\RMS.Core\obj\Debug\RMS.Core.dll
+C:\Users\Dileep\Desktop\RMS\RMS.Core\obj\Debug\RMS.Core.pdb

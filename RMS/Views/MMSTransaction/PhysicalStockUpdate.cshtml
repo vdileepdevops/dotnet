@@ -1,0 +1,336 @@
+﻿@{
+    // ViewBag.Title = "PhysicalStockUpdate";
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+
+<div ng-controller="PhysicalStockUpdateController" ng-init="LoadData()">
+    <div class="page-content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                <form class="form-horizontal" role="form" name="PhysicalStockUpdatefrm" novalidate>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label no-padding-right" for="form-field-1">
+                            Verified by <span style="color: Red">*</span> :
+                        </label>
+                        <div class="col-sm-4">
+                            <select name="Userid" id="Userid" ng-model="SU.Userid" placeholder="Verified by" ng-options="c.Userid as c.Username for c in Stock"
+                                    class="form-control" required kt-focus data-index="1">
+                                <option value="">Select Verified Name</option>
+                            </select>
+                            <span class="error" ng-show="(PhysicalStockUpdatefrm.Userid.$dirty || submitted) && PhysicalStockUpdatefrm.Userid.$error.required">
+                                Verified Name Required!
+                            </span>
+                        </div>
+                        <label class="col-sm-2 control-label no-padding-right" for="form-field-1">
+                            Date <span style="color: Red">*</span> :
+                        </label>
+                        <div class="col-sm-4">
+                            <input type="text" id="Date" name="Date" ng-model="SU.Date" data-index="2"
+                                   placeholder="Enter Date " class="form-control" required />
+                            <span class="error" ng-show="(PhysicalStockUpdatefrm.Date.$dirty || submitted) && PhysicalStockUpdatefrm.Date.$error.required">
+                                Date Required!
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label no-padding-right" for="form-field-1">
+                            Store Name<span style="color: Red">*</span> :
+                        </label>
+                        <div class="col-sm-4">
+                            <select name="Storagelocationid" id="Storagelocationid" ng-model="SU.Storagelocationid" placeholder="Storage Location" ng-options="c.Storagelocationid as c.Storagelocation for c in store"
+                                    class="form-control" required kt-focus data-index="1" ng-change="StorageLocationchange()">
+                                <option value="">Select Store Name</option>
+                            </select>
+                            <span class="error" ng-show="(PhysicalStockUpdatefrm.Storagelocationid.$dirty || submitted) && PhysicalStockUpdatefrm.Storagelocationid.$error.required">
+                                Store Name Required!
+                            </span>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <table id="grdStockUpdate"></table>
+        <div id="grid-pager">
+        </div>
+        <br />
+        <div class="col-sm-12">
+            <div class="pull-right">
+                <button class="btn btn-success" type="button" ng-click="SaveStockupdate(SU)" data-index="3">
+                    <i class="ace-icon fa fa-plus bigger-110"></i>{{btnSave}}
+                </button>
+                &nbsp; &nbsp; &nbsp;
+                <button class="btn orange" ng-click="Reset()" id="Reset">
+                    <i class="ace-icon fa fa-undo bigger-110"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(function () {
+        $("#Date").datepicker({
+            endDate: '+0d'
+
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    var appElement = document.querySelector('[ ng-controller=PhysicalStockUpdateController]');
+    function Search() {
+        JqCustomSearch($("#globalSearchText").val(), $("#grdStockUpdate"))
+    }
+
+</script>
+
+<script type="text/javascript">
+    app.controller('PhysicalStockUpdateController', function ($scope, $http, $rootScope) {
+        debugger
+        $('#productcategory').focus();
+        $scope.submitted = false;
+        $scope.isFormValid = false;
+        $scope.btnSave = "Save";
+        $rootScope.FormName = "Physical Stock Update";
+        $rootScope.ModuleName = "Transaction";
+
+        $scope.$watch('PhysicalStockUpdatefrm.$valid', function (newValue) {
+            $scope.isFormValid = newValue;
+        });
+
+        $scope.LoadData = function () {
+            debugger;
+
+            var storagelocid = 0;
+
+            debugger;
+            $http({ method: 'post', url: "/MMSTransaction/ShowStockupdate/", data: { locationid: storagelocid } }).success(function (data) {
+                StockUpdateGridBinding(data);
+
+
+            }).error(function () {
+                alert("Error Occuerd");
+
+            });
+
+            $http({
+                url: '/MMSTransaction/ShowStockusers/',
+                method: "get"
+
+            }).success(function (data) {
+                debugger;
+
+                $scope.Stock = data;
+
+            });
+        }
+
+
+        $http({
+            url: '/MMSTransaction/ShowStoragelocation/',
+            method: "get"
+
+        }).success(function (data) {
+            debugger;
+
+            $scope.store = data;
+
+        });
+
+
+        $(function () {
+            $("#Date").datepicker({
+                endDate: '+0d'
+
+            });
+        });
+
+        $scope.StorageLocationchange = function () {
+            debugger;
+            // var storagelocid = $("#Storageloc").val();
+            var storagelocid = $scope.SU.Storagelocationid;
+
+            debugger;
+            $http({ method: 'post', url: "/MMSTransaction/ShowStockupdate/", data: { locationid: storagelocid } }).success(function (data) {
+                $("#grdStockUpdate").jqGrid("clearGridData", true).trigger("reloadGrid");
+                StockUpdateGridBinding(data);
+
+
+            }).error(function () {
+                alert("Error Occuerd");
+
+            });
+
+        };
+
+        $scope.SaveStockupdate = function (SU) {
+            debugger;
+            $scope.submitted = true;
+            var verifiedby = $("#Userid").val();
+            var userid = $scope.SU.Userid;
+            var Date = $("#Date").val();
+            //var verifiedbyname = $("#Userid option:selected").text();
+            var Grid_data = $('#grdStockUpdate').jqGrid('getRowData');
+            var grdlenth = Grid_data.length;
+            var grddata = [];
+            debugger;
+            for (var i = 0; i < grdlenth; i++) {
+                if (Grid_data[i].physicalstock !== "") {
+                    var row = Grid_data[i];
+                    grddata.push(row);
+                }
+            }
+            debugger;
+            if ($scope.isFormValid) {
+                if ($scope.btnSave == "Save") {
+                    var ans = confirm($rootScope.msgSave);
+                    if (ans) {
+                        //$http.post('/MMSTransaction/SaveStock', SU).success(function (data) {
+
+                        $http({ method: 'POST', data: { PhysicalStockUpdateDTO: SU, lstStockupdate: grddata }, url: '/MMSTransaction/SaveStock/' }).success(function (data) {
+                            debugger
+                            if (data === true) {
+                                alert("Stock Details Saved Sucessfully");
+                                $scope.SU = {};
+                                ClearForm();
+                                $("#grdStockUpdate").jqGrid("clearGridData", true).trigger("reloadGrid");
+                            } else {
+                                alert("Error While Saving....");
+                            }
+                        })
+                    }
+                }
+                else {
+
+                }
+            }
+        }
+
+
+
+        $scope.Reset = function () {
+            ClearForm();
+        }
+
+
+
+
+        //****************** Clear Details *******************************//
+
+        function ClearForm() {
+
+            $scope.SU = {};
+            $scope.PhysicalStockUpdatefrm.$setPristine();
+            $scope.submitted = false;
+            $scope.btnSave = "Save";
+            // $('#grdStockUpdate').jqGrid('delRowData');
+            //$scope.grdStockUpdate.grid.clearAllFilters();
+            $("#grdStockUpdate").jqGrid("clearGridData", true).trigger("reloadGrid");
+
+        }
+        $scope.lastsel2 = 0;
+        //****************** JQ Grid  *******************************//
+        function StockUpdateGridBinding(data) {
+            debugger
+
+            var grid_data = data;
+            var grid_selector = "#grdStockUpdate";
+            var pager_selector = "#grid-pager";
+
+            //grid data refresh
+            jQuery(grid_selector).jqGrid('setGridParam', { datatype: 'local', data: grid_data }).trigger("reloadGrid");
+            //resize to fit page size
+            $(window).on('resize.jqGrid', function () {
+                $(grid_selector).jqGrid('setGridWidth', $(".page-content").width());
+            })
+            //resize on sidebar collapse/expand
+            var parent_column = $(grid_selector).closest('[class*="col-"]');
+            $(document).on('settings.ace.jqGrid', function (ev, event_name, collapsed) {
+                if (event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed') {
+                    //setTimeout is for webkit only to give time for DOM changes and then redraw!!!
+                    setTimeout(function () {
+                        $(grid_selector).jqGrid('setGridWidth', parent_column.width());
+
+                    }, 0);
+                }
+            })
+
+
+            jQuery(grid_selector).jqGrid({
+                data: grid_data,
+                datatype: "local",
+                height: 290,
+                rownumbers: true,
+                colModel: [
+                        //{
+                        //    label: ' ', width: 40, sortable: false, key: true, formatter: function (cellvalue, options, rowObject) {
+                        //        return "<button class='btn-grid' type='button' onclick='edit(" + options.rowId + ");'  ><i class='fa fa-pencil'></i><br/></button> <button class='btn-grid' type='button' onclick='Delete(" + options.rowId + ")'  ><i class='fa fa-trash'></i></button>";
+                        //    }
+                        //},
+                         { label: 'Product', name: 'productname', width: 100 },
+                         { label: 'Product Id', name: 'productid', width: 80 },
+                         { label: 'UOM', name: 'uom', width: 80 },
+                         { label: 'storage locationid', name: 'Storagelocationid', hidden: true },
+                         { label: 'Storage Location', name: 'Storagelocation', width: 100 },
+                         { label: 'shelfid', name: 'Shelfid', hidden: true },
+                         { label: 'Shelf Name', name: 'Shelfname', width: 100 },
+                         { label: 'Min Stock', name: 'Stockinstore',  hidden: true },
+                         { label: 'Max Stock', name: 'Stockinstore', hidden: true },
+                         { label: 'categoryid', name: 'productcategoryid', hidden: true },
+                         { label: 'Category Name', name: 'categoryname', width: 100 },
+                         { label: 'subcatogeryid', name: 'productsubcategoryid',  hidden: true },
+                          { label: 'SubCategory Name', name: 'subcategoryname', width: 110 },
+                         { label: 'Stock in System', name: 'Stockinstore', width: 90, formatter: Number, align: 'right' },
+                         { label: 'Physical Stock', name: 'physicalstock', width: 90, editable: true, align: 'right' },
+                         { label: 'Closing Stock', name: 'closingstock', width: 90, formatter: Number, align: 'right' }
+
+                ],
+
+                viewrecords: true,
+                rowNum: 8,
+                rowList: [8, 16, 25, 100],
+                pager: pager_selector,
+                altRows: true,
+                search: true,
+                ignoreCase: true,
+
+                loadComplete: function (id) {
+                    var table = this;
+                    setTimeout(function () {
+                        styleCheckbox(table);
+                        updateActionIcons(table);
+                        updatePagerIcons(table);
+                        enableTooltips(table);
+                    }, 0);
+                },
+                onSelectRow: function (id) {
+                    jQuery('#grdStockUpdate').jqGrid('restoreRow', $scope.lastsel2);
+                    jQuery('#grdStockUpdate').jqGrid('editRow', id, {
+                        keys: true,
+                        aftersavefunc: function (id) {
+                            debugger;
+                            var Stockinstore = $(this).jqGrid("getCell", id, "Stockinstore");
+                            var PhysicalStock = $(this).jqGrid("getCell", id, "physicalstock");
+                            var closingstock = parseFloat(Stockinstore - PhysicalStock);
+                            //closingstock = $(this).jqGrid("setCell", id, "closingstock");
+                            $(this).jqGrid("setCell", id, "closingstock", closingstock);
+                        }
+                    });
+                    $scope.lastsel2 = id;
+
+                },
+                caption: "Physical Stock Update <span class='input-icon grid-search'>  <input type='text' onkeyup='Search()'  id='globalSearchText'  placeholder='Search ...' class='nav-search-input' autocomplete='off'>  <i class='ace-icon fa fa-search nav-search-icon'></i></span> "
+
+            });
+            $(window).triggerHandler('resize.jqGrid');
+
+        }
+
+
+    });
+</script>
